@@ -10,7 +10,6 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain 
 
 ---
 apiVersion: v1
@@ -23,5 +22,4 @@ spec:
       storage: 100Gi
   volumeMode: Filesystem
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain   
+    - ReadWriteOnce 
