@@ -20,7 +20,7 @@ spec:
     type: string
     description: image to be build from the code
   tasks:
-    - name: git-clone
+    - name: s2i-git-clone
       taskRef:
         name: git-clone
         kind: ClusterTask
