@@ -1,11 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: s2i-build
+  name: s2i-pipeline
 spec:
   workspaces:
   - name: shared-workspace
-  - name: maven-settings
   params:
   - name: deployment-name
     type: string
