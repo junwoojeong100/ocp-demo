@@ -47,7 +47,8 @@ spec:
           workspace: s2i-shared-workspace
       params:
         - name: BUILDER_IMAGE
-          value: registry.redhat.io/ubi8/openjdk-11
+          #value: registry.redhat.io/ubi8/openjdk-11
+          value: fabric8/s2i-java
         - name: TLSVERIFY
           value: "false"
         - name: IMAGE
