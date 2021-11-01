@@ -7,7 +7,7 @@ spec:
     - taskName: build-image
       serviceAccountName: sa-for-build-image
   pipelineRef:
-    name: gitclone-build
+    name: pipeline
   workspaces:
     - name: shared-workspace
       persistentVolumeClaim:
