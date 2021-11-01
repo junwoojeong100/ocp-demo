@@ -41,7 +41,7 @@ spec:
         name: s2i-java
         kind: ClusterTask
       runAfter:
-        - git-clone
+        - s2i-git-clone
       workspaces:
         - name: source
           workspace: s2i-shared-workspace
