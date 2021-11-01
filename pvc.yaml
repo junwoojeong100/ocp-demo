@@ -23,3 +23,16 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce 
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s2i-shared-workspace
+spec:
+  resources:
+    requests:
+      storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
