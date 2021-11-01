@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: gitclone-build
+  name: pipeline
 spec:
   workspaces:
   - name: shared-workspace
