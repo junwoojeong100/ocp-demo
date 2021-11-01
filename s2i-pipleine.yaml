@@ -52,3 +52,5 @@ spec:
           value: "false"
         - name: IMAGE
           value: $(params.IMAGE)
+        - name: PATH_CONTEXT
+          value: $(params.git-url)
