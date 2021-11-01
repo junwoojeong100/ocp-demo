@@ -9,9 +9,9 @@ spec:
   pipelineRef:
     name: s2i-build
   workspaces:
-    - name: shared-workspace
+    - name: s2i-shared-workspace
       persistentVolumeClaim:
-        claimName: shared-workspace
+        claimName: s2i-shared-workspace
     #- name: maven-settings
     #  persistentVolumeClaim:
     #    claimName: maven-settings
