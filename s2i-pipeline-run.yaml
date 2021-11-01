@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: s2i-pipeline
+  name: s2i-pipeline-run
 spec:
   serviceAccountNames:
     - taskName: s2i-java
       serviceAccountName: sa-for-build-image
   pipelineRef:
-    name: s2i-build
+    name: s2i-pipeline
   workspaces:
     - name: s2i-shared-workspace
       persistentVolumeClaim:
