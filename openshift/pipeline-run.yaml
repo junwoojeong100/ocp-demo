@@ -3,9 +3,6 @@ kind: PipelineRun
 metadata:
   name: pipeline-run
 spec:
-  serviceAccountNames:
-    - taskName: build-image
-      serviceAccountName: sa-for-build-image
   pipelineRef:
     name: pipeline
   workspaces:
