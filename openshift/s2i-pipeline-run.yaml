@@ -3,9 +3,6 @@ kind: PipelineRun
 metadata:
   name: s2i-pipeline-run
 spec:
-  serviceAccountNames:
-    - taskName: s2i-java
-      serviceAccountName: sa-for-build-image
   pipelineRef:
     name: s2i-pipeline
   workspaces:
