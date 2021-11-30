@@ -14,8 +14,10 @@ spec:
         claimName: maven-settings
   params:
     - name: deployment-name
-      value: tekton-demo
+      value: spring-demo
     - name: git-url
-      value: https://github.com/joon9293/spring-demo.git
+      value: https://github.com/joon9293/spring-demo.git 
+    - name: git-revision
+      value: master
     - name: IMAGE
       value: joon9293/spring-demo
