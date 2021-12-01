@@ -64,32 +64,6 @@ spec:
       value: "true"
     - name: revision
       value: $(params.git-revision)
-  - name: maven-build
-    taskRef:
-      name: maven
-      kind: ClusterTask
-    runAfter:
-      - git-clone       
-    params:
-    - name: GOALS
-      value: ["package"]
-    workspaces:
-    - name: maven-settings
-      workspace: maven-settings
-    - name: source
-      workspace: shared-workspace     
-  - name: build-image
-    taskRef:
-      name: buildah
-      kind: ClusterTask
-    params:
-    - name: IMAGE
-      value: $(params.IMAGE)
-    workspaces:
-    - name: source
-      workspace: shared-workspace
-    runAfter:
-    - maven-build
     
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
