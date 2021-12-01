@@ -2,7 +2,7 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: vote-app
+  name: spring-demo
 spec:
   params:
   - name: git-repo-url
@@ -16,7 +16,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: vote-app
+  name: spring-demo
 spec:
   params:
   - name: git-repo-url
@@ -56,20 +56,20 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: Trigger
 metadata:
-  name: vote-trigger
+  name: spring-demo
 spec:
   serviceAccountName: pipeline
   bindings:
-    - ref: vote-app
+    - ref: spring-demo
   template:
-    ref: vote-app
+    ref: spring-demo
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: vote-app
+  name: spring-demo
 spec:
   serviceAccountName: pipeline
   triggers:
-    - triggerRef: vote-trigger    
+    - triggerRef: spring-demo    
