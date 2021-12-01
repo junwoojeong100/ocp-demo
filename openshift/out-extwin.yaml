@@ -2,27 +2,14 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: shared-workspace
+  name: spring-demo-workspace
 spec:
   resources:
     requests:
-      storage: 5Gi
+      storage: 1Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: maven-settings
-spec:
-  resources:
-    requests:
-      storage: 5Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce 
 
 ---
 apiVersion: tekton.dev/v1beta1
@@ -31,8 +18,7 @@ metadata:
   name: spring-demo-pipeline
 spec:
   workspaces:
-  - name: shared-workspace
-  - name: maven-settings
+  - name: spring-demo-workspace
   params:
   - name: deployment-name
     type: string
@@ -54,7 +40,7 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: shared-workspace
+      workspace: spring-demo-workspace
     params:
     - name: url
       value: $(params.git-url)
@@ -112,12 +98,9 @@ spec:
       - name: IMAGE
         value: image-registry.openshift-image-registry.svc:5000/idmextwin-ci/spring-demo:latest
       workspaces:
-        - name: shared-workspace
+        - name: spring-demo-workspace
           persistentVolumeClaim:
-            claimName: shared-workspace
-        - name: maven-settings
-          persistentVolumeClaim:
-            claimName: maven-settings
+            claimName: spring-demo-workspace
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
