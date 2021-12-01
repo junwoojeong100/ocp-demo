@@ -1,0 +1,168 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-workspace
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: maven-settings
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce 
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: spring-demo-pipeline
+spec:
+  workspaces:
+  - name: shared-workspace
+  - name: maven-settings
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"
+  - name: IMAGE
+    type: string
+    description: image to be build from the code
+  tasks:
+  - name: git-clone
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+  - name: maven-build
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    runAfter:
+      - git-clone       
+    params:
+    - name: GOALS
+      value: ["package"]
+    workspaces:
+    - name: maven-settings
+      workspace: maven-settings
+    - name: source
+      workspace: shared-workspace     
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - maven-build
+    
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: out-extwin
+spec:
+  params:
+  - name: git-repo-url
+    value: $(body.repository.url)
+  - name: git-repo-name
+    value: $(body.repository.name)
+  - name: git-revision
+    value: $(body.head_commit.id)
+
+--- 
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: out-extwin
+spec:
+  params:
+  - name: git-repo-url
+    description: The git repository url
+  - name: git-revision
+    description: The git revision
+  - name: git-repo-name
+    description: The name of the deployment to be created / patched
+
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: $(tt.params.git-repo-name)-pipeline-
+    spec:
+      serviceAccountName: pipeline
+      pipelineRef:
+        name: spring-demo-pipeline
+      params:
+      - name: deployment-name
+        value: $(tt.params.git-repo-name)
+      - name: git-url
+        value: $(tt.params.git-repo-url)
+      - name: git-revision
+        value: $(tt.params.git-revision)
+      - name: IMAGE
+        value: image-registry.openshift-image-registry.svc:5000/idmextwin-ci/spring-demo:latest
+      workspaces:
+        - name: shared-workspace
+          persistentVolumeClaim:
+            claimName: shared-workspace
+        - name: maven-settings
+          persistentVolumeClaim:
+            claimName: maven-settings
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: out-extwin
+spec:
+  serviceAccountName: pipeline
+  bindings:
+    - ref: out-extwin
+  template:
+    ref: out-extwin
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: out-extwin
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - triggerRef: out-extwin    
