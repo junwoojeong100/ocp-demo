@@ -30,11 +30,11 @@ spec:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
-      generateName: pipeline-$(tt.params.git-repo-name)-
+      generateName: $(tt.params.git-repo-name)-pipeline-
     spec:
       serviceAccountName: pipeline
       pipelineRef:
-        name: pipeline
+        name: spring-demo-pipeline
       params:
       - name: deployment-name
         value: $(tt.params.git-repo-name)

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: pipeline
+  name: spring-demo-pipeline
 spec:
   workspaces:
   - name: shared-workspace

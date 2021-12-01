@@ -4,7 +4,7 @@ metadata:
   name: pipeline-run
 spec:
   pipelineRef:
-    name: pipeline
+    name: spring-demo-pipeline
   workspaces:
     - name: shared-workspace
       persistentVolumeClaim:
