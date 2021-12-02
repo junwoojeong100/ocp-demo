@@ -1,78 +1,27 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: spring-demo-workspace
-spec:
-  resources:
-    requests:
-      storage: 1Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-
----
-apiVersion: tekton.dev/v1beta1
-kind: Pipeline
-metadata:
-  name: spring-demo-pipeline
-spec:
-  workspaces:
-  - name: spring-demo-workspace
-  params:
-  - name: deployment-name
-    type: string
-    description: name of the deployment to be patched
-  - name: git-url
-    type: string
-    description: url of the git repo for the code of deployment
-  - name: git-revision
-    type: string
-    description: revision to be used from repo of the code for deployment
-    default: "master"
-  - name: IMAGE
-    type: string
-    description: image to be build from the code
-  tasks:
-  - name: git-clone
-    taskRef:
-      name: git-clone
-      kind: ClusterTask
-    workspaces:
-    - name: output
-      workspace: spring-demo-workspace
-    params:
-    - name: url
-      value: $(params.git-url)
-    - name: subdirectory
-      value: ""
-    - name: deleteExisting
-      value: "true"
-    - name: revision
-      value: $(params.git-revision)
-    
----
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: out-extwin
+  name: bitbucket-push
 spec:
   params:
-  - name: git-repo-url
-    value: $(body.repository.url)
-  - name: git-repo-name
-    value: $(body.repository.name)
-  - name: git-revision
-    value: $(body.head_commit.id)
+    - name: git-revision
+      value: '$(body.changes[0].ref.displayId)'
+    - name: gitrepo-url
+      value: '$(body.repository.links.clone[1].href)'
+    - name: git-repo-name
+      value: $(body.repository.name)
+    - name: pusher-name
+      value: $(body.actor.name)
 
---- 
+---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: out-extwin
+  name: bitbucket-template
 spec:
   params:
-  - name: git-repo-url
+  - name: gitrepo-url
     description: The git repository url
   - name: git-revision
     description: The git revision
@@ -85,41 +34,57 @@ spec:
     metadata:
       generateName: $(tt.params.git-repo-name)-pipeline-
     spec:
-      serviceAccountName: pipeline
-      pipelineRef:
-        name: spring-demo-pipeline
-      params:
-      - name: deployment-name
-        value: $(tt.params.git-repo-name)
-      - name: git-url
-        value: $(tt.params.git-repo-url)
-      - name: git-revision
-        value: $(tt.params.git-revision)
-      - name: IMAGE
-        value: image-registry.openshift-image-registry.svc:5000/idmextwin-ci/spring-demo:latest
-      workspaces:
-        - name: spring-demo-workspace
-          persistentVolumeClaim:
-            claimName: spring-demo-workspace
-
----
-apiVersion: triggers.tekton.dev/v1alpha1
-kind: Trigger
-metadata:
-  name: out-extwin
-spec:
-  serviceAccountName: pipeline
-  bindings:
-    - ref: out-extwin
-  template:
-    ref: out-extwin
+        params:
+          - name: URL
+            value: $(tt.params.gitrepo-url)
+          - name: REVISION
+            value: $(tt.params.git-revision)
+          - name: S2I_CONTEXT
+            value: .
+          - name: ARTIFACTS_IMAGE
+            value: >-
+              image-registry.openshift-image-registry.svc:5000/idmextwin-ci/out-extwin-artifacts:latest
+          - name: OUTPUT_IMAGE
+            value: 'quay.education.nsw.gov.au/idmextwin/out-extwin:latest'
+          - name: S2I_ENV_CONFIGMAP
+            value: s2i-environment
+          - name: ENV_CONFIGMAP
+            value: build-environment
+        pipelineRef:
+          name: out-extwin-pipeline
+        serviceAccountName: pipeline
+        workspaces:
+          - configMap:
+              name: pipeline-ca-trust
+            name: trust-store
+          - emptyDir: {}
+            name: build-cache
+          - emptyDir: {}
+            name: source
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: out-extwin
+  name: bitbucket-event-listener
+  namespace: idmextwin-ci
+  finalizers:
+    - eventlisteners.triggers.tekton.dev
+  labels:
+    argocd.argoproj.io/instance: idmextwin-build
 spec:
   serviceAccountName: pipeline
   triggers:
-    - triggerRef: out-extwin    
+    - bindings:
+        - kind: TriggerBinding
+          ref: bitbucket-push
+      interceptors:
+        - bitbucket:
+            eventTypes:
+              - 'repo:refs_changed'
+            secretRef:
+              secretKey: secretToken
+              secretName: bitbucket-webhook-secret
+      name: bitbucket-push-trigger
+      template:
+        ref: bitbucket-template
