@@ -67,10 +67,6 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: bitbucket-event-listener
-  finalizers:
-    - eventlisteners.triggers.tekton.dev
-  labels:
-    argocd.argoproj.io/instance: idmextwin-build
 spec:
   serviceAccountName: pipeline
   triggers:
