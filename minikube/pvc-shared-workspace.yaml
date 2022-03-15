@@ -15,7 +15,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: maven-settings
+  name: s2i-shared-workspace
 spec:
   resources:
     requests:

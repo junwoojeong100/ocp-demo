@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: s2i-pipeline
+  name: spring-demo-s2i-pipeline
 spec:
   workspaces:
   - name: s2i-shared-workspace
@@ -36,9 +36,9 @@ spec:
           value: "true"
         - name: revision
           value: $(params.git-revision)
-    - name: s2i-java
+    - name: s2i-java-11
       taskRef:
-        name: s2i-java
+        name: s2i-java-11
         kind: ClusterTask
       runAfter:
         - s2i-git-clone

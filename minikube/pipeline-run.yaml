@@ -13,7 +13,8 @@ spec:
       persistentVolumeClaim:
         claimName: shared-workspace
     - name: maven-settings
-      emptyDir: {}
+      configMap:
+        name: maven-settings
   params:
     - name: deployment-name
       value: tekton-demo

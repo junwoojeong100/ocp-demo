@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: pipeline-run
+  name: spring-demo-pipeline-run
 spec:
   pipelineRef:
     name: spring-demo-pipeline
@@ -10,8 +10,8 @@ spec:
       persistentVolumeClaim:
         claimName: shared-workspace
     - name: maven-settings
-      persistentVolumeClaim:
-        claimName: maven-settings
+      configMap:
+        name: maven-settings
   params:
     - name: deployment-name
       value: spring-demo
