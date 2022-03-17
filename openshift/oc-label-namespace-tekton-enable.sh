@@ -1,1 +1,1 @@
-oc label namespace test operator.tekton.dev/enable-annotation=enabled
+oc label namespace default operator.tekton.dev/enable-annotation=enabled

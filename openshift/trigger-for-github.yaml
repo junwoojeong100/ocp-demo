@@ -2,7 +2,7 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: spring-demo
+  name: trigger-binding-spring-demo
 spec:
   params:
   - name: git-repo-url
@@ -16,7 +16,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: spring-demo
+  name: trigger-template-spring-demo
 spec:
   params:
   - name: git-repo-url
@@ -49,27 +49,47 @@ spec:
           persistentVolumeClaim:
             claimName: shared-workspace
         - name: maven-settings
-          persistentVolumeClaim:
-            claimName: maven-settings
+          configMap:
+            name: maven-settings
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-secret
+type: Opaque
+stringData:
+  secretToken: "1234567"
+
+--- 
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: Trigger
 metadata:
-  name: spring-demo
+  name: trigger-spring-demo
 spec:
   serviceAccountName: pipeline
   bindings:
-    - ref: spring-demo
+    - ref: trigger-binding-spring-demo
   template:
-    ref: spring-demo
+    name: trigger-template-spring-demo
 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: spring-demo
+  name: eventlistener-spring-demo
 spec:
   serviceAccountName: pipeline
   triggers:
-    - triggerRef: spring-demo    
+    - name: github-listener
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-secret
+              secretKey: secretToken
+            eventTypes:
+              - push
+      bindings:
+        - ref: trigger-binding-spring-demo
+      template:
+        name: trigger-template-spring-demo     
