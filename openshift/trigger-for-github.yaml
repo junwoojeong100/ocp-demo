@@ -56,7 +56,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: github-secret
+  name: github-webhook-secret
 type: Opaque
 stringData:
   secretToken: "1234567"
