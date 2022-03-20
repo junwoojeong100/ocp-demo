@@ -3,6 +3,7 @@ kind: PipelineRun
 metadata:
   name: spring-demo-s2i-pipeline-run
 spec:
+  serviceAccountName: pipeline
   pipelineRef:
     name: spring-demo-s2i-pipeline
   workspaces:
