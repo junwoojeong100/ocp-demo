@@ -44,8 +44,13 @@ spec:
     runAfter:
       - git-clone       
     params:
+    - name: MAVEN_IMAGE
+      value: adoptopenjdk/maven-openjdk8
     - name: GOALS
-      value: ["package"]
+      value:
+        - -DskipTests
+        - clean
+        - package
     workspaces:
     - name: maven-settings
       workspace: maven-settings

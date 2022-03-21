@@ -17,7 +17,7 @@ data:
         <mirror>
           <id>nexus</id>
           <name>nexus</name>
-          <url>http://nexus.repo.ui-bk.com:7081/repository/maven-public/</url>
+          <url>http://nexus.repo.ui-bk.com:7081/repository/maven-releases/</url>
           <mirrorOf>*</mirrorOf>
         </mirror>
       </mirrors>
