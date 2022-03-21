@@ -12,7 +12,14 @@ spec:
         claimName: shared-workspace
     - name: maven-settings
       configMap:
-        name: maven-settings           
+        name: maven-settings
+    #- name: sslcertdir
+    #  configMap:
+    #    name: jp-fep-account-loginv1-1-7-1-ca
+    #    defaultMode: 420
+    #    items:
+    #    - key: service-ca.crt
+    #      path: ca.crt              
   params:
     - name: deployment-name
       value: jp-fep-account-login

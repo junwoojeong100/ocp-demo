@@ -6,6 +6,7 @@ spec:
   workspaces:
   - name: shared-workspace
   - name: maven-settings
+  #- name: sslcertdir
   params:
   - name: deployment-name
     type: string
@@ -68,5 +69,7 @@ spec:
     workspaces:
     - name: source
       workspace: shared-workspace
+    #- name: sslcertdir
+    #  workspace: sslcertdir  
     runAfter:
     - maven-build
