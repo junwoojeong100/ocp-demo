@@ -12,13 +12,15 @@ spec:
         claimName: shared-workspace
     - name: maven-settings
       configMap:
-        name: maven-settings
+        name: maven-settings           
   params:
     - name: deployment-name
       value: jp-fep-account-login
     - name: git-url
-      value: http://gitlab.repo.ui-bk.com:7443/root/jp-fep-account-login.git 
+      #value: http://gitlab.repo.ui-bk.com:7443/root/jp-fep-account-login.git 
+      value: http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-account-login.git
     - name: git-revision
-      value: develop
+      #value: develop
+      value: Red_Hat-develop-patch-02640
     - name: IMAGE
-      value: jp-fep-account-login:1.1.7
+      value: image-registry.apps.uibfepdev.ui-bk.com/jp-fep-account/jp-fep-account-login:1.1.7

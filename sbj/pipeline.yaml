@@ -55,7 +55,7 @@ spec:
     - name: maven-settings
       workspace: maven-settings
     - name: source
-      workspace: shared-workspace     
+      workspace: shared-workspace                 
   - name: build-image
     taskRef:
       name: buildah
@@ -63,6 +63,8 @@ spec:
     params:
     - name: IMAGE
       value: $(params.IMAGE)
+    - name: TLSVERIFY
+      value: "false"  
     workspaces:
     - name: source
       workspace: shared-workspace
