@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: jp-fep-account-login-pipeline-run
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: jp-fep-account-login-pipeline
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: shared-workspace
+    - name: maven-settings
+      configMap:
+        name: maven-settings
+  params:
+    - name: deployment-name
+      value: jp-fep-account-login
+    - name: git-url
+      value: http://gitlab.repo.ui-bk.com:7443/root/jp-fep-account-login.git 
+    - name: git-revision
+      value: develop
+    - name: IMAGE
+      value: jp-fep-account-login:1.1.7
