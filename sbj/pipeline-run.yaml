@@ -13,13 +13,13 @@ spec:
     - name: maven-settings
       configMap:
         name: maven-settings
-    #- name: sslcertdir
-    #  configMap:
-    #    name: openshift-service-ca
-    #    defaultMode: 420
-    #    items:
-    #    - key: service-ca.crt
-    #      path: ca.crt          
+    - name: sslcertdir
+      configMap:
+        name: openshift-service-ca
+        defaultMode: 420
+        items:
+        - key: service-ca.crt
+          path: ca.crt          
   params:
     - name: deployment-name
       value: jp-fep-account-login

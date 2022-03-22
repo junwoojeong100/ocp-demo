@@ -6,7 +6,7 @@ spec:
   workspaces:
   - name: shared-workspace
   - name: maven-settings
-  #- name: sslcertdir
+  - name: sslcertdir
   params:
   - name: deployment-name
     type: string
@@ -59,17 +59,17 @@ spec:
       workspace: shared-workspace                 
   - name: build-image
     taskRef:
-      name: buildah
+      name: buildah-new
       kind: ClusterTask
     params:
     - name: IMAGE
       value: $(params.IMAGE)
-    - name: TLSVERIFY
-      value: "false"  
+    #- name: TLSVERIFY
+    #  value: "false"  
     workspaces:
     - name: source
       workspace: shared-workspace
-    #- name: sslcertdir
-    #  workspace: sslcertdir  
+    - name: sslcertdir
+      workspace: sslcertdir  
     runAfter:
     - maven-build
