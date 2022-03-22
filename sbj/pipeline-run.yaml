@@ -15,11 +15,11 @@ spec:
         name: maven-settings
     #- name: sslcertdir
     #  configMap:
-    #    name: jp-fep-account-loginv1-1-7-1-ca
+    #    name: openshift-service-ca
     #    defaultMode: 420
     #    items:
     #    - key: service-ca.crt
-    #      path: ca.crt              
+    #      path: ca.crt          
   params:
     - name: deployment-name
       value: jp-fep-account-login
@@ -30,4 +30,4 @@ spec:
       #value: develop
       value: Red_Hat-develop-patch-02640
     - name: IMAGE
-      value: image-registry.apps.uibfepdev.ui-bk.com/jp-fep-account/jp-fep-account-login:1.1.7
+      value: image-registry.openshift-image-registry.svc:5000/jp-fep-account/jp-fep-account-login:1.1.7
