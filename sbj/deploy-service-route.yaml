@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: jp-fep-account
+  name: jp-fep-account-login
+  labels:
+    app: jp-fep-account-login
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jp-fep-account-login
+  template:
+    metadata:
+      name: jp-fep-account-login
+      labels:
+        app: jp-fep-account-login
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: jp-fep-account-login
+          image: image-registry.openshift-image-registry.svc:5000/jp-fep-account/jp-fep-account-login:1.1.7
+          ports:
+            - containerPort: 8443
+              protocol: TCP
+            - containerPort: 8778
+              protocol: TCP
+            - containerPort: 9779
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: JAVA_OPTIONS
+              value: >-
+                -Djava.net.preferIPv4Stack=true -verbose:gc -Xloggc:/tmp/gc.log
+                -XX:+UseG1GC -XX:+DisableExplicitGC -XX:+UseStringDeduplication
+            - name: LANG
+              value: jp_JP.utf-8
+            - name: LOGGING_LEVEL_COM_SHB
+              value: DEBUG
+            - name: SPRING_PROFILES_ACTIVE
+              value: staging
+            - name: TZ
+              value: Asia/Tokyo
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+            requests:
+              cpu: 1000m
+              memory: 1024Mi
+          imagePullPolicy: IfNotPresent
+
+
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: jp-fep-account-login-test
+  namespace: jp-fep-account
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  selector:
+    app: jp-fep-account-login
+
+
+--- 
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: jp-fep-account-login-test
+  namespace: jp-fep-account
+spec:
+  path: /
+  to:
+    kind: Service
+    name: jp-fep-account-login-test
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None  
