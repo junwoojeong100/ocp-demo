@@ -1,1 +1,1 @@
-oc label namespace default operator.tekton.dev/enable-annotation=enabled
+oc label namespace jp-fep-account operator.tekton.dev/enable-annotation=enabled
