@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: spring-demo-s2i-pipeline
+  name: s2i-pipeline-spring-demo
 spec:
   workspaces:
-  - name: s2i-shared-workspace
+  - name: s2i-source
   params:
   - name: deployment-name
     type: string
@@ -26,7 +26,7 @@ spec:
         kind: ClusterTask
       workspaces:
         - name: output
-          workspace: s2i-shared-workspace
+          workspace: s2i-source
       params:
         - name: url
           value: $(params.git-url)
@@ -44,7 +44,7 @@ spec:
         - s2i-git-clone
       workspaces:
         - name: source
-          workspace: s2i-shared-workspace
+          workspace: s2i-source
       params:
         - name: TLSVERIFY
           value: "false"

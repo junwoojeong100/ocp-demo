@@ -9,9 +9,9 @@ spec:
   pipelineRef:
     name: gitclone-build
   workspaces:
-    - name: shared-workspace
+    - name: source
       persistentVolumeClaim:
-        claimName: shared-workspace
+        claimName: source
     - name: maven-settings
       configMap:
         name: maven-settings

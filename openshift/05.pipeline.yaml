@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: spring-demo-pipeline
+  name: pipeline-spring-demo
 spec:
   workspaces:
-  - name: shared-workspace
+  - name: source
   - name: maven-settings
   params:
   - name: deployment-name
@@ -27,7 +27,7 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: shared-workspace
+      workspace: source
     params:
     - name: url
       value: $(params.git-url)
@@ -50,7 +50,7 @@ spec:
     - name: maven-settings
       workspace: maven-settings
     - name: source
-      workspace: shared-workspace     
+      workspace: source    
   - name: build-image
     taskRef:
       name: buildah
@@ -60,6 +60,6 @@ spec:
       value: $(params.IMAGE)
     workspaces:
     - name: source
-      workspace: shared-workspace
+      workspace: source
     runAfter:
     - maven-build

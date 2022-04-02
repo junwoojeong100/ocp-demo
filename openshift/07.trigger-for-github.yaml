@@ -30,11 +30,11 @@ spec:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
-      generateName: $(tt.params.git-repo-name)-pipeline-
+      generateName: pipeline-run-$(tt.params.git-repo-name)-
     spec:
       serviceAccountName: pipeline
       pipelineRef:
-        name: spring-demo-pipeline
+        name: pipeline-spring-demo
       params:
       - name: deployment-name
         value: $(tt.params.git-repo-name)
@@ -45,9 +45,9 @@ spec:
       - name: IMAGE
         value: joon9293/spring-demo
       workspaces:
-        - name: shared-workspace
+        - name: source
           persistentVolumeClaim:
-            claimName: shared-workspace
+            claimName: source
         - name: maven-settings
           configMap:
             name: maven-settings
