@@ -28,6 +28,9 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: "master"    
+  - name: image-tag
+    type: string
+    description: image tag to be build from the code    
   tasks:
   - name: git-clone
     taskRef:
@@ -89,3 +92,17 @@ spec:
       value: $(params.helm-chart-git-revision)
     runAfter:
     - build-image
+  - name: yq-replace
+    taskRef:
+      name: yq
+    workspaces:
+      - name: source
+        workspace: helm-chart
+    params:
+      - name: files
+        value:
+        - "./values.yaml"
+      - name: expression
+        value: .image.tag="$(params.image-tag)"
+    runAfter:
+      - helm-chart-git-clone        

@@ -13,6 +13,9 @@ spec:
     - name: maven-settings
       configMap:
         name: maven-settings
+    - name: helm-chart
+      persistentVolumeClaim:
+        claimName: helm-chart        
   params:
     - name: deployment-name
       value: spring-demo
@@ -22,7 +25,9 @@ spec:
       value: master
     - name: IMAGE
       value: joon9293/spring-demo
-    - name: git-url
+    - name: helm-chart-git-url
       value: https://github.com/joon9293/helm-demo.git 
-    - name: git-revision
+    - name: helm-chart-git-revision
       value: master      
+    - name: image-tag
+      value: "1.1.7"    
