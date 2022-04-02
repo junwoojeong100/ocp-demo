@@ -22,3 +22,7 @@ spec:
       value: master
     - name: IMAGE
       value: joon9293/spring-demo
+    - name: git-url
+      value: https://github.com/joon9293/helm-demo.git 
+    - name: git-revision
+      value: master      

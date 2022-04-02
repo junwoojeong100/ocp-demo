@@ -11,15 +11,16 @@ spec:
   accessModes:
     - ReadWriteOnce
 
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: s2i-source
+  name: helm-chart
 spec:
   resources:
     requests:
-      storage: 1Gi
+      storage: 50Mi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce

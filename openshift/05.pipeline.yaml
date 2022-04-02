@@ -6,6 +6,7 @@ spec:
   workspaces:
   - name: source
   - name: maven-settings
+  - name: helm-chart
   params:
   - name: deployment-name
     type: string
@@ -20,6 +21,13 @@ spec:
   - name: IMAGE
     type: string
     description: image to be build from the code
+  - name: helm-chart-git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: helm-chart-git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"    
   tasks:
   - name: git-clone
     taskRef:
@@ -63,3 +71,21 @@ spec:
       workspace: source
     runAfter:
     - maven-build
+  - name: helm-chart-git-clone
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: helm-chart
+    params:
+    - name: url
+      value: $(params.helm-chart-git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.helm-chart-git-revision)
+    runAfter:
+    - build-image
