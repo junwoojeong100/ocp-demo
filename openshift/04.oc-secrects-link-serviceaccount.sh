@@ -1,1 +1,1 @@
-oc secrets link pipeline regcred
+oc secrets link pipeline pull-secret

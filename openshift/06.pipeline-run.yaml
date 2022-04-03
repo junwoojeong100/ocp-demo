@@ -15,16 +15,7 @@ spec:
         name: maven-settings
     - name: helm-chart
       persistentVolumeClaim:
-        claimName: helm-chart        
-    - name: git-cli-input
-      persistentVolumeClaim:
-        claimName: git-cli-input 
-    - name: ssh-key-secret 
-      secret:
-        secretName: ssh-key-secret      
-    - name: github-pat-secret 
-      secret:
-        secretName: github-pat-secret               
+        claimName: helm-chart                    
   params:
     - name: deployment-name
       value: spring-demo
@@ -33,23 +24,12 @@ spec:
     - name: git-revision
       value: master
     - name: IMAGE
-      value: joon9293/spring-demo
+      value: quay.io/jjeong/spring-demo
     - name: helm-chart-git-url
       value: https://github.com/joon9293/helm-demo.git 
     - name: helm-chart-git-revision
       value: master      
     - name: image-tag
-      value: "1.1.7"    
+      value: "latest"    
     - name: file-path
-      value: "/workspace/output/values.yaml" 
-    - name: git-user-name
-      value: joon9293   
-    - name: git-user-email
-      value: joon9293@gmail.com     
-    - name: git-script
-      value: |
-
-        git add .
-        git commit -m "update values.yaml"
-        git show-ref
-        git push -u origin master               
+      value: "/workspace/output/helm-demo/values.yaml"               

@@ -7,9 +7,6 @@ spec:
   - name: source
   - name: maven-settings
   - name: helm-chart
-  - name: git-cli-input
-  - name: ssh-key-secret
-  - name: github-pat-secret
   params:
   - name: deployment-name
     type: string
@@ -36,16 +33,7 @@ spec:
     description: path of values.yaml  
   - name: image-tag
     type: string
-    description: image tag to be build from the code    
-  - name: git-user-name
-    type: string
-    description: git-user-name     
-  - name: git-user-email
-    type: string
-    description: git-user-email
-  - name: git-script
-    type: string
-    description: git-script               
+    description: image tag to be build from the code             
   tasks:
   - name: git-clone
     taskRef:
@@ -88,25 +76,7 @@ spec:
     - name: source
       workspace: source
     runAfter:
-    - maven-build
-  #- name: helm-chart-git-clone
-  #  taskRef:
-  #    name: git-clone
-  #    kind: ClusterTask
-  #  workspaces:
-  #  - name: output
-  #    workspace: helm-chart
-  #  params:
-  #  - name: url
-  #    value: $(params.helm-chart-git-url)
-  #  - name: subdirectory
-  #    value: ""
-  #  - name: deleteExisting
-  #    value: "true"
-  #  - name: revision
-  #    value: $(params.helm-chart-git-revision)
-    #runAfter:
-    #- build-image  
+    - maven-build 
   - name: yq-and-git-push
     taskRef:
       name: yq-and-git-push
@@ -122,27 +92,5 @@ spec:
         value: $(params.helm-chart-git-url)  
       - name: helm-chart-git-revision
         value: $(params.helm-chart-git-revision)
-    #runAfter:
-    #- helm-chart-git-clone  
-  - name: git-push
-    taskRef:
-      name: git-cli-new
-      #kind: ClusterTask
-    workspaces:
-      - name: source
-        workspace: helm-chart
-      - name: input 
-        workspace: git-cli-input 
-      - name: ssh-directory
-        workspace: ssh-key-secret 
-      - name: basic-auth
-        workspace: github-pat-secret      
-    params:
-      - name: GIT_USER_NAME
-        value: $(params.git-user-name)
-      - name: GIT_USER_EMAIL
-        value: $(params.git-user-email)
-      - name: GIT_SCRIPT
-        value: $(params.git-script)      
     runAfter:
-    - yq-and-git-push           
+    - build-image          

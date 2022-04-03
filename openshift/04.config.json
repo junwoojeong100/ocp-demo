@@ -1,0 +1,12 @@
+{
+    "auths":{
+       "registry.redhat.io":{
+          "auth":"amplb25nQHJlZGhhdC5jb206V2FudEB0aGluazM=",
+          "email":"jjeong@redhat.com"
+       },
+       "quay.io":{
+          "auth":"amplb25nQHJlZGhhdC5jb206V2FudEB0aGluazM=",
+          "email":"jjeong@redhat.com"
+       }
+    }
+ }
