@@ -1,0 +1,81 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: yq-and-git-push
+spec:
+  params:
+    - name: file-path
+      type: string
+      description: Path of values.yaml
+    - name: image-tag
+      type: string
+      description: New image tag
+    - name: helm-chart-git-url
+      type: string
+      description: url of the git repo for the code of deployment
+    - name: helm-chart-git-revision
+      type: string
+      description: revision to be used from repo of the code for deployment      
+  steps:
+    - name: git-clone
+      image: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2
+      #image: alpine/git:latest
+      workingDir: $(workspaces.output.path)
+      script: |
+
+        rm -rf *
+
+        git config --global user.email "joon9293@gmail.com"
+        git config --global user.name "joon9293"
+
+        git clone "$(params.helm-chart-git-url)"
+
+        pwd 
+        ls -al 
+
+        git remote -v
+        git config --list   
+
+    - name: replace-image-tag
+      image: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2
+    #  image: mikefarah/yq
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh    
+        echo $(params.file-path)
+        echo $(params.image-tag)
+        
+        cd helm-demo
+        touch new-file1
+
+    #    yq -i '.image.tag="$(params.image-tag)"' '$(params.file-path)' 나중에 경로 확인 필요
+
+    - name: git-push
+      image: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2
+      #image: alpine/git:latest
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh 
+        echo $(params.helm-chart-git-url)
+        echo $(params.helm-chart-git-revision) 
+
+        cd helm-demo
+        #git init
+        #git remote add origin "$(params.helm-chart-git-url)"
+
+        #git config --global user.email "joon9293@gmail.com"
+        #git config --global user.name "joon9293"
+
+        git add .
+        git commit -m "update values.yaml"
+
+        pwd 
+        ls -al 
+
+        git show-ref
+        git push -u origin $(params.helm-chart-git-revision)  
+  workspaces:
+    - description: The git repo will be cloned onto the volume backing this workspace
+      name: output      

@@ -7,6 +7,9 @@ spec:
   - name: source
   - name: maven-settings
   - name: helm-chart
+  - name: git-cli-input
+  - name: ssh-key-secret
+  - name: github-pat-secret
   params:
   - name: deployment-name
     type: string
@@ -27,10 +30,22 @@ spec:
   - name: helm-chart-git-revision
     type: string
     description: revision to be used from repo of the code for deployment
-    default: "master"    
+    default: "master"   
+  - name: file-path
+    type: string
+    description: path of values.yaml  
   - name: image-tag
     type: string
     description: image tag to be build from the code    
+  - name: git-user-name
+    type: string
+    description: git-user-name     
+  - name: git-user-email
+    type: string
+    description: git-user-email
+  - name: git-script
+    type: string
+    description: git-script               
   tasks:
   - name: git-clone
     taskRef:
@@ -74,35 +89,60 @@ spec:
       workspace: source
     runAfter:
     - maven-build
-  - name: helm-chart-git-clone
+  #- name: helm-chart-git-clone
+  #  taskRef:
+  #    name: git-clone
+  #    kind: ClusterTask
+  #  workspaces:
+  #  - name: output
+  #    workspace: helm-chart
+  #  params:
+  #  - name: url
+  #    value: $(params.helm-chart-git-url)
+  #  - name: subdirectory
+  #    value: ""
+  #  - name: deleteExisting
+  #    value: "true"
+  #  - name: revision
+  #    value: $(params.helm-chart-git-revision)
+    #runAfter:
+    #- build-image  
+  - name: yq-and-git-push
     taskRef:
-      name: git-clone
-      kind: ClusterTask
+      name: yq-and-git-push
     workspaces:
-    - name: output
-      workspace: helm-chart
+      - name: output
+        workspace: helm-chart
     params:
-    - name: url
-      value: $(params.helm-chart-git-url)
-    - name: subdirectory
-      value: ""
-    - name: deleteExisting
-      value: "true"
-    - name: revision
-      value: $(params.helm-chart-git-revision)
-    runAfter:
-    - build-image
-  - name: yq-replace
+      - name: file-path
+        value: $(params.file-path)
+      - name: image-tag
+        value: $(params.image-tag)
+      - name: helm-chart-git-url
+        value: $(params.helm-chart-git-url)  
+      - name: helm-chart-git-revision
+        value: $(params.helm-chart-git-revision)
+    #runAfter:
+    #- helm-chart-git-clone  
+  - name: git-push
     taskRef:
-      name: yq
+      name: git-cli-new
+      #kind: ClusterTask
     workspaces:
       - name: source
         workspace: helm-chart
+      - name: input 
+        workspace: git-cli-input 
+      - name: ssh-directory
+        workspace: ssh-key-secret 
+      - name: basic-auth
+        workspace: github-pat-secret      
     params:
-      - name: files
-        value:
-        - "./values.yaml"
-      - name: expression
-        value: .image.tag="$(params.image-tag)"
+      - name: GIT_USER_NAME
+        value: $(params.git-user-name)
+      - name: GIT_USER_EMAIL
+        value: $(params.git-user-email)
+      - name: GIT_SCRIPT
+        value: $(params.git-script)      
     runAfter:
-      - helm-chart-git-clone        
+    - yq-and-git-push           

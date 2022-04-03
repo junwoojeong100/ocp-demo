@@ -24,3 +24,17 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: git-cli-input
+spec:
+  resources:
+    requests:
+      storage: 50Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce

@@ -16,6 +16,15 @@ spec:
     - name: helm-chart
       persistentVolumeClaim:
         claimName: helm-chart        
+    - name: git-cli-input
+      persistentVolumeClaim:
+        claimName: git-cli-input 
+    - name: ssh-key-secret 
+      secret:
+        secretName: ssh-key-secret      
+    - name: github-pat-secret 
+      secret:
+        secretName: github-pat-secret               
   params:
     - name: deployment-name
       value: spring-demo
@@ -31,3 +40,16 @@ spec:
       value: master      
     - name: image-tag
       value: "1.1.7"    
+    - name: file-path
+      value: "/workspace/output/values.yaml" 
+    - name: git-user-name
+      value: joon9293   
+    - name: git-user-email
+      value: joon9293@gmail.com     
+    - name: git-script
+      value: |
+
+        git add .
+        git commit -m "update values.yaml"
+        git show-ref
+        git push -u origin master               
