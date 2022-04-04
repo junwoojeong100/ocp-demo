@@ -12,7 +12,7 @@ spec:
   - name: git-revision
     value: $(body.head_commit.id)
   - name: IMAGE
-    value: joon9293/spring-demo      
+    value: quay.io/jjeong/spring-demo      
   - name: helm-chart-git-url
     value: https://github.com/joon9293/helm-demo.git
   - name: helm-chart-git-revision
