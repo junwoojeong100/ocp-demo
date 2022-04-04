@@ -1,0 +1,13 @@
+project: default
+source:
+  repoURL: 'http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-build-deploy.git'
+  path: deploy
+  targetRevision: HEAD
+  helm:
+    valueFiles:
+      - jp-fep-account-login/values.yaml
+destination:
+  server: 'https://kubernetes.default.svc'
+  namespace: jp-fep-account
+syncPolicy:
+  automated: {}

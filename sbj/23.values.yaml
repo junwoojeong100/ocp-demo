@@ -1,0 +1,115 @@
+# Default values for app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: image-registry.openshift-image-registry.svc:5000/jp-fep-account/jp-fep-account-login
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.1.7"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 1000m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+ports:
+  - containerPort: 8080
+    name: http
+    protocol: TCP
+  - containerPort: 8443
+    name: https
+    protocol: TCP
+  - containerPort: 8778
+    name: jolokia
+    protocol: TCP
+  - containerPort: 9779
+    name: jmx
+    protocol: TCP
+
+env:
+  - name: JAVA_OPTIONS
+    value: >-
+      -Djava.net.preferIPv4Stack=true -verbose:gc -Xloggc:/tmp/gc.log
+      -XX:+UseG1GC -XX:+DisableExplicitGC -XX:+UseStringDeduplication
+  - name: LANG
+    value: jp_JP.utf-8
+  - name: LOGGING_LEVEL_COM_SHB
+    value: DEBUG
+  - name: SPRING_PROFILES_ACTIVE
+    value: staging
+  - name: TZ
+    value: Asia/Tokyo
+
+route:
+  enabled: true
+#  host: spring-demo-default.apps.cluster-t42tz.t42tz.sandbox1493.opentlc.com
+#  path: /
