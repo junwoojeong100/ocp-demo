@@ -11,6 +11,16 @@ spec:
     value: $(body.repository.name)
   - name: git-revision
     value: $(body.head_commit.id)
+  - name: IMAGE
+    value: joon9293/spring-demo      
+  - name: helm-chart-git-url
+    value: https://github.com/joon9293/helm-demo.git
+  - name: helm-chart-git-revision
+    value: "master"
+  - name: file-path
+    value: "/workspace/output/helm-demo/values.yaml"
+  - name: image-tag
+    value: "latest"
 
 --- 
 apiVersion: triggers.tekton.dev/v1alpha1
@@ -25,7 +35,17 @@ spec:
     description: The git revision
   - name: git-repo-name
     description: The name of the deployment to be created / patched
-
+  - name: IMAGE
+    description: IMAGE    
+  - name: helm-chart-git-url
+    description: url of the git repo for the code of deployment
+  - name: helm-chart-git-revision
+    description: revision to be used from repo of the code for deployment
+    default: "main"   
+  - name: file-path
+    description: path of values.yaml  
+  - name: image-tag
+    description: image tag to be build from the code
   resourcetemplates:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
@@ -43,7 +63,15 @@ spec:
       - name: git-revision
         value: $(tt.params.git-revision)
       - name: IMAGE
-        value: joon9293/spring-demo
+        value: $(tt.params.IMAGE)
+      - name: helm-chart-git-url
+        value: $(tt.params.helm-chart-git-url)
+      - name: helm-chart-git-revision
+        value: $(tt.params.helm-chart-git-revision)      
+      - name: image-tag
+        value: $(tt.params.image-tag)    
+      - name: file-path
+        value: $(tt.params.file-path)         
       workspaces:
         - name: source
           persistentVolumeClaim:
@@ -51,6 +79,9 @@ spec:
         - name: maven-settings
           configMap:
             name: maven-settings
+        - name: helm-chart
+          persistentVolumeClaim:
+            claimName: helm-chart  
 
 ---
 apiVersion: v1
