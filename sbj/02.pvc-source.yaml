@@ -11,3 +11,18 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: helm-chart
+spec:
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 50Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
