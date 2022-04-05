@@ -1,21 +1,23 @@
 # jp-fep-build-deploy
 
-This repository is for configuring pipelines based on Tekton and gitops based on ArgoCD.
+이 문서는 Tekton을 기반으로 CI 파이프라인을 구성하고, ArgoCD를 기반으로 GitOps방식의 CD를 구성하는 방법을 가이드합니다.
 
-There are two directories. One is build for CI pipeline, the other is deploy for gitops based CD.
-
-You can check out REAME.md of each directory for the details.
+build, deploy 디렉토리의 README.md를 통해서 빌드/배포의 상세 내용을 확인할 수 있습니다.
 
 
 # build
 
-1. Do git clone `http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-build-deploy.git`
+이 문서는 Tekton Pipeline을 생성하고, Pipeline Run을 통해 파이프라인을 실행하는 방법을 가이드합니다.
+
+그리고 Tekton Trigger를 통해서 파이프라인을 자동화하는 방법을 가이드합니다.
+
+1. git clone을 실행합니다. `http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-build-deploy.git`
 
 ```
 git clone http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-build-deploy.git
 ```
 
-2. Make a directory under `jp-fep-build-deploy/build` directory for your application build
+2. `jp-fep-build-deploy/build`아래에서 애플리케이션 빌드를 위한 신규 디렉토리를 생성합니다.
 
 ```
 cd jp-fep-build-deploy/build
@@ -23,14 +25,13 @@ cd jp-fep-build-deploy/build
 mkdir <your-application-name>
 ```
 
-3. Copy from `jp-fep-build-deploy/build/jp-fep-account-login`
+3. `jp-fep-build-deploy/build/jp-fep-account-login` 하위 파일을 복사하여 신규 디렉토리 하위에 붙여넣습니다.
 
 ```
 cp -rf jp-fep-account-login/* <your-application-name>
 ```
 
-4. Edit `pipeline.yaml` according to your application
-  - Change `name` to your own
+4. `pipeline.yaml`을 열어서 `name`의 value를 애플리케이션에 맞게 변경합니다.
 
 ```  
 apiVersion: tekton.dev/v1beta1
@@ -39,8 +40,7 @@ metadata:
   name: pipeline-jp-fep-account-login
 ```
 
-5. Edit `pipeline-run.yaml` according to your application
-  - Change `name`, `pipelineRef` and `params` to your own
+5. `pipeline-run.yaml`을 열어서 `name`, `pipelineRef`, `params` 의 value를 애플리케이션에 맞게 변경합니다.
 
 ```
 apiVersion: tekton.dev/v1beta1
@@ -80,8 +80,7 @@ spec:
       value: "/workspace/output/jp-fep-build-deploy/deploy/jp-fep-account-login/values.yaml"    
 ```
 
-6. Edit `trigger.yaml` according to your application
-  - Change `name` and `params` to your own
+6. `trigger.yaml`을 열어서 `name`, `params`의 value를 애플리케이션에 맞게 변경합니다.
 
 ```
 ---
@@ -140,11 +139,11 @@ spec:
     weight: 100    
 ```
 
-7. Make sure a `project access token` in `jp-fep-build-deploy` GitLab repository’s Settings - `Access Tokens`
+7. `jp-fep-build-deploy` GitLab repository’s Settings - `Access Tokens`에 `project access token`이 있는지 확인합니다.
 
 ![Capture](/uploads/51de5fce5379133a2b3e2213bd668f0b/Capture.PNG)
 
-8. Create a `secret` from GitLab `project access token` above
+8. GitLab `project access token`을 기반으로 `secret`를 생성합니다.
 
 ```
 oc create secret generic gitlab-pat-secret-build-deploy \
@@ -158,19 +157,19 @@ oc annotate secret gitlab-pat-secret-build-deploy \
 -n <your-namespace>
 ```
 
-9. Link the `secret` to serviceaccount `pipeline`
+9. `pipeline` serviceaccount에 위에서 생성한 `secret`을 링크합니다.
 
 ```
 oc secrets link pipeline gitlab-pat-secret-build-deploy -n <your-namespace>
 ```
 
-10. Set namespace `tekton enabled`
+10. Tekton 파이프라인이 생성될 네임스페이스에 아래와 같은 `Tekton 활성화` 레이블을 추가합니다. 
 
 ```
 oc label namespace <your-namespace> operator.tekton.dev/enable-annotation=enabled
 ```
 
-11. Apply resource manifest files below to OCP
+11. 위에서 변경한 아래와 같은 Kubernetes 리소스를 OCP에 반영합니다.
 
 ```
 oc apply -f configmap-maven-settings.yaml -n <your-namespace>
@@ -186,11 +185,11 @@ oc apply -f pipeline-run.yaml -n <your-namespace>
 oc apply -f trigger.yaml -n <your-namespace>
 ```
 
-12. Create a `webhook` in your application's GitLab repository
+12. 애플리케이션의 GitLab repository에서 `webhook`을 생성합니다.
 
 ![Capture](/uploads/11260d32f6a566c381ff9b4a3be9821b/Capture.PNG)
 
-13. Do git push to your application’s GitLab repository to make sure trigger works
+13. Tekton Trigger의 동작을 확인하기 위해서 애플리케이션 소스를 변경하고 아래와 같이 git push를 실행합니다.
 
 ```
 git add .
@@ -201,7 +200,13 @@ git push
 
 # deploy
 
-1. Make a directory under `jp-fep-build-deploy/deploy` directory for your application deploy
+이 문서는 ArgoCD를 사용해서 GitOps 방식으로 Kubernetes 리소스를 OCP 클러스터에 반영하는 방법을 가이드합니다.
+
+deploy 단계는 build 단계 진행을 전제하고 있습니다. 
+
+build 단계를 진행하지 않았다면, build 단계의 1~2번 항목을 반드시 진행 후, 아래 가이드를 참조해 주세요.
+
+1. `jp-fep-build-deploy/deploy` 아래에서 애플리케이션 배포를 위한 신규 디렉토리를 생성합니다.
 
 ```
 cd jp-fep-build-deploy/deploy
@@ -209,20 +214,19 @@ cd jp-fep-build-deploy/deploy
 mkdir <your-application-name>
 ```
 
-2. Copy from `jp-fep-build-deploy/deploy/jp-fep-account-login`
+2. `jp-fep-build-deploy/deploy/jp-fep-account-login` 하위 파일을 복사하여 신규 디렉토리 하위에 붙여넣습니다
 
 ```
 cp -rf jp-fep-account-login/* <your-application-name>
 ```
 
-3. Set namespace `argocd enabled`
+3. 애플리케이션이 배포될 네임스페이스에 아래와 같은 `ArgoCD 활성화` 레이블을 추가합니다
 
 ```
 oc label namespace <your-namespace> argocd.argoproj.io/managed-by=openshift-gitops
 ```
 
-4. Edit `values.yaml` according to your application
-  - Change `image repository`, `tag`, `resources`, `ports` and `env` to your own
+4. `values.yaml`을 열어서 `image repository`, `tag`, `resources`, `ports`, `env`의 value를 애플리케이션에 맞게 변경합니다.
 
 ```
 # Default values for app.
@@ -325,8 +329,7 @@ route:
 
 ```
 
-5. Edit `argocd-application.yaml` according to your application
-  - Change `source repoURL`, `path`, `helm valueFiles` and `destination namespace` to your own
+5. `argocd-application.yaml`을 열어서 `source repoURL`, `path`, `helm valueFiles`, `destination namespace`의 value를 애플리케이션에 맞게 변경합니다. 
 
 ```
 project: default
@@ -344,7 +347,7 @@ syncPolicy:
   automated: {}
 ```
 
-6. Do git push `values.yaml` to `jp-fep-build-deploy` GitLab repository
+6. 변경 내용을 반영하기 위해서 `jp-fep-build-deploy` GitLab repository에 git push를 실행합니다.
 
 7. Apply resource manifest file below to OCP
 
@@ -352,10 +355,12 @@ syncPolicy:
 oc apply -f argocd-application.yaml -n <your-namespace>
 ```
 
-8. Log in to ArgoCD admin console
-  - Enter `admin` and `admin.password` value of `openshift-gitops-cluster` secret in `openshift-gitops` namespace
+8. ArgoCD 어드민 콘솔에 로그인합니다.
+  - Username에 `admin`을, Password에 admin의 패스워드를 입력합니다.
+  - `openshift-gitops` 네임스페이스에서 `openshift-gitops-cluster` secret을 찾아서 `admin.password`의 value를 확인합니다.
+
 ![Capture](/uploads/67c5124a2a7e5f90dafe2ea498a38cec/Capture.PNG)
 
-9. Do sync your `ArgoCD application` in ArgoCD admin console
+9. ArgoCD 어드민 콘솔에서 `Sync`버튼을 클릭해서 동기화를 진행합니다.
 
 ![Capture](/uploads/34a6b58b1b09150997ec3f25ab687d38/Capture.PNG)
