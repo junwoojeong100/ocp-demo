@@ -1,0 +1,22 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: trigger-binding-{{ .Values.name }}
+spec:
+  params:
+  - name: git-repo-url
+    value: $(body.repository.url)
+  - name: git-repo-name
+    value: $(body.repository.name)
+  - name: git-revision
+    value: $(body.head_commit.id)
+  - name: IMAGE
+    value: {{ .Values.image }}      
+  - name: helm-chart-git-url
+    value: {{ .Values.helmChartGitUrl }}
+  - name: helm-chart-git-revision
+    value: {{ .Values.helmChartGitRevision }} 
+  - name: file-path
+    value: {{ .Values.imageTag }}
+  - name: image-tag
+    value: {{ .Values.filePath }}      

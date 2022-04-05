@@ -1,0 +1,19 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: eventlistener-{{ .Values.name }}
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: github-listener
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-webook-secret
+              secretKey: secretToken
+            eventTypes:
+              - push
+      bindings:
+        - ref: trigger-binding-{{ .Values.name }}
+      template:
+        name: trigger-template-{{ .Values.name }} 

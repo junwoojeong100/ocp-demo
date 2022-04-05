@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipeline-run-{{ .Values.name }}
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: pipeline-{{ .Values.name }}
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: source
+    - name: maven-settings
+      configMap:
+        name: maven-settings
+    - name: helm-chart
+      persistentVolumeClaim:
+        claimName: helm-chart                    
+  params:
+    - name: deployment-name
+      value: {{ .Values.name }}
+    - name: git-url
+      value: {{ .Values.gitUrl }}
+    - name: git-revision
+      value: {{ .Values.gitRevision }}
+    - name: IMAGE
+      value: {{ .Values.image }}
+    - name: helm-chart-git-url
+      value: {{ .Values.helmChartGitUrl }}
+    - name: helm-chart-git-revision
+      value: {{ .Values.helmChartGitRevision }}      
+    - name: image-tag
+      value: {{ .Values.imageTag }}    
+    - name: file-path
+      value: {{ .Values.filePath }}              

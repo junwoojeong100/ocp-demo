@@ -1,0 +1,59 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: trigger-template-{{ .Values.name }}
+spec:
+  params:
+  - name: git-repo-url
+    description: The git repository url
+  - name: git-revision
+    description: The git revision
+  - name: git-repo-name
+    description: The name of the deployment to be created / patched
+  - name: IMAGE
+    description: IMAGE    
+  - name: helm-chart-git-url
+    description: url of the git repo for the code of deployment
+  - name: helm-chart-git-revision
+    description: revision to be used from repo of the code for deployment
+    default: "main"   
+  - name: file-path
+    description: path of values.yaml  
+  - name: image-tag
+    description: image tag to be build from the code
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: pipeline-run-$(tt.params.git-repo-name)-
+    spec:
+      serviceAccountName: pipeline
+      pipelineRef:
+        name: pipeline-{{ .Values.name }}
+      params:
+      - name: deployment-name
+        value: $(tt.params.git-repo-name)
+      - name: git-url
+        value: $(tt.params.git-repo-url)
+      - name: git-revision
+        value: $(tt.params.git-revision)
+      - name: IMAGE
+        value: $(tt.params.IMAGE)
+      - name: helm-chart-git-url
+        value: $(tt.params.helm-chart-git-url)
+      - name: helm-chart-git-revision
+        value: $(tt.params.helm-chart-git-revision)      
+      - name: image-tag
+        value: $(tt.params.image-tag)    
+      - name: file-path
+        value: $(tt.params.file-path)         
+      workspaces:
+        - name: source
+          persistentVolumeClaim:
+            claimName: source
+        - name: maven-settings
+          configMap:
+            name: maven-settings
+        - name: helm-chart
+          persistentVolumeClaim:
+            claimName: helm-chart 

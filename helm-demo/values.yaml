@@ -1,0 +1,15 @@
+name: spring-demo
+
+gitUrl: https://github.com/joon9293/spring-demo.git 
+
+gitRevision: master
+
+image: quay.io/jjeong/spring-demo
+
+helmChartGitUrl: https://github.com/joon9293/helm-demo.git 
+
+helmChartGitRevision: master
+
+imageTag: "latest" 
+
+filePath: "/workspace/output/helm-demo/values.yaml"
