@@ -4,6 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: source
 spec:
+  #storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
@@ -18,6 +19,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: helm-chart
 spec:
+  #storageClassName: gp2
   resources:
     requests:
       storage: 1Gi
