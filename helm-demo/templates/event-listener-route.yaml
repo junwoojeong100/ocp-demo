@@ -1,6 +1,7 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
+  name: eventlistener-{{ .Values.name }}
   annotations:
     openshift.io/host.generated: 'true'
   #namespace: jp-fep-account
