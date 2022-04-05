@@ -1,0 +1,1 @@
+oc label namespace jp-fep-account argocd.argoproj.io/managed-by=openshift-gitops
