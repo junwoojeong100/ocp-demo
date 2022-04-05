@@ -31,7 +31,8 @@ mkdir <your-application-name>
 cp -rf jp-fep-account-login/* <your-application-name>
 ```
 
-4. `pipeline.yaml`을 열어서 `name`의 value를 애플리케이션에 맞게 변경합니다.
+4. `pipeline.yaml`을 열어서 아래 부분을 애플리케이션에 맞게 변경합니다.
+  - `metadata.name`
 
 ```  
 apiVersion: tekton.dev/v1beta1
@@ -40,7 +41,10 @@ metadata:
   name: pipeline-jp-fep-account-login
 ```
 
-5. `pipeline-run.yaml`을 열어서 `name`, `pipelineRef`, `params` 의 value를 애플리케이션에 맞게 변경합니다.
+5. `pipeline-run.yaml`을 열어서 아래 부분을 애플리케이션에 맞게 변경합니다.
+  - `metadata.name`
+  - `spec.pipelineRef.name` 
+  - `spec.params`
 
 ```
 apiVersion: tekton.dev/v1beta1
@@ -80,7 +84,10 @@ spec:
       value: "/workspace/output/jp-fep-build-deploy/deploy/jp-fep-account-login/values.yaml"    
 ```
 
-6. `trigger.yaml`을 열어서 `name`, `params`의 value를 애플리케이션에 맞게 변경합니다.
+6. `trigger.yaml`을 열어서 아래 부분을 애플리케이션에 맞게 변경합니다.
+  - 각 리소스의 `metadata.name`
+  - TriggerBinding의 `spec.params`
+  - Route의 `spec.host`, `spec.to.name`
 
 ```
 ---
@@ -226,7 +233,12 @@ cp -rf jp-fep-account-login/* <your-application-name>
 oc label namespace <your-namespace> argocd.argoproj.io/managed-by=openshift-gitops
 ```
 
-4. `values.yaml`을 열어서 `image repository`, `tag`, `resources`, `ports`, `env`의 value를 애플리케이션에 맞게 변경합니다.
+4. `values.yaml`을 열어서 아래 부분을 애플리케이션에 맞게 변경합니다.
+  - `image.repository`
+  - `image.tag`
+  - `resources`
+  - `ports`
+  - `env`
 
 ```
 # Default values for app.
@@ -329,7 +341,11 @@ route:
 
 ```
 
-5. `argocd-application.yaml`을 열어서 `source repoURL`, `path`, `helm valueFiles`, `destination namespace`의 value를 애플리케이션에 맞게 변경합니다. 
+5. `argocd-application.yaml`을 열어서 아래 부분을 애플리케이션에 맞게 변경합니다. 
+  - `source.repoURL`
+  - `source.path`
+  - `source.helm.valueFiles`
+  - `destination.namespace`
 
 ```
 project: default
