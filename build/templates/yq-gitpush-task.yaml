@@ -32,8 +32,8 @@ spec:
 
         git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
 
-        #pwd 
-        #ls -al 
+        pwd 
+        ls -al 
 
         git remote -v
         git config --list   
