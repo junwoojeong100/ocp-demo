@@ -27,13 +27,7 @@ spec:
         git config --global user.email "joon9293@gmail.com"
         git config --global user.name "joon9293"
 
-        pwd 
-        ls -al 
-
         git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
-
-        pwd 
-        ls -al 
 
         #git remote -v
         #git config --list   
