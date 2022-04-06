@@ -1,0 +1,375 @@
+--- 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maven-settings
+data:
+  settings.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <settings>
+      <servers>
+        <server>
+          <id>nexus</id>
+          <username>admin</username>
+          <password>admin123</password>
+        </server>
+      </servers>
+      <mirrors>
+        <mirror>
+          <id>nexus</id>
+          <name>nexus</name>
+          <url>http://nexus.repo.ui-bk.com:7081/repository/maven-releases/</url>
+          <mirrorOf>*</mirrorOf>
+        </mirror>
+      </mirrors>
+    </settings>
+
+--- 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: source
+spec:
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: helm-chart
+spec:
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce    
+
+--- 
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: yq-and-git-push
+spec:
+  params:
+    - name: file-path
+      type: string
+      description: Path of values.yaml
+    - name: image-tag
+      type: string
+      description: New image tag
+    - name: helm-chart-git-url
+      type: string
+      description: url of the git repo for the code of deployment
+    - name: helm-chart-git-revision
+      type: string
+      description: revision to be used from repo of the code for deployment      
+  steps:
+    - name: git-clone
+      image: image-registry.apps.uibfepdev.ui-bk.com/jp-fep-account/git-init
+      workingDir: $(workspaces.output.path)
+      script: |
+
+        rm -rf *
+
+        git config --global user.email "jjeong@redhat.com"
+        git config --global user.name "jjeong@redhat.com"
+
+        git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
+
+        cd jp-fep-build-deploy
+        pwd 
+        ls -al 
+
+        git remote -v
+        git config --list   
+
+    - name: replace-image-tag
+      image: image-registry.apps.uibfepdev.ui-bk.com/jp-fep-account/yq
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh    
+        echo $(params.file-path)
+        echo $(params.image-tag)
+        
+        yq -i '.image.tag="$(params.image-tag)"' '$(params.file-path)'
+
+    - name: git-push
+      image: image-registry.apps.uibfepdev.ui-bk.com/jp-fep-account/git-init
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh 
+        echo $(params.helm-chart-git-url)
+        echo $(params.helm-chart-git-revision) 
+
+        cd jp-fep-build-deploy
+        pwd 
+        ls -al 
+        
+        git add .
+        git commit -m "update values.yaml"
+
+        git show-ref
+        git push -u origin $(params.helm-chart-git-revision)  
+  workspaces:
+    - description: The git repo will be cloned onto the volume backing this workspace
+      name: output      
+
+--- 
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline-jp-fep-account-login
+spec:
+  workspaces:
+  - name: source
+  - name: maven-settings
+  - name: helm-chart  
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"
+  - name: IMAGE
+    type: string
+    description: image to be build from the code 
+  - name: helm-chart-git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: helm-chart-git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"   
+  - name: file-path
+    type: string
+    description: path of values.yaml  
+  - name: image-tag
+    type: string
+    description: image tag to be build from the code     
+  tasks:  
+  - name: git-clone
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: source
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+    - name: sslVerify  
+      value: "false"
+  - name: maven-build
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    runAfter:
+      - git-clone       
+    params:
+    - name: MAVEN_IMAGE
+      value: adoptopenjdk/maven-openjdk8
+    - name: GOALS
+      value:
+        - -DskipTests
+        - clean
+        - package
+    workspaces:
+    - name: maven-settings
+      workspace: maven-settings
+    - name: source
+      workspace: source                 
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    - name: TLSVERIFY
+      value: "false"  
+    workspaces:
+    - name: source
+      workspace: source
+    runAfter:
+    - maven-build
+  - name: yq-and-git-push
+    taskRef:
+      name: yq-and-git-push
+    workspaces:
+      - name: output
+        workspace: helm-chart
+    params:
+      - name: file-path
+        value: $(params.file-path)
+      - name: image-tag
+        value: $(params.image-tag)
+      - name: helm-chart-git-url
+        value: $(params.helm-chart-git-url)  
+      - name: helm-chart-git-revision
+        value: $(params.helm-chart-git-revision)
+    runAfter:
+    - build-image      
+
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: trigger-binding-jp-fep-account-login
+spec:
+  params:
+  - name: git-repo-url
+    value: http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-account-login.git
+  - name: git-repo-name
+    value: $(body.repository.name)
+  - name: git-revision
+    value: $(body.commits[0].id)
+  - name: IMAGE
+    value: image-registry.openshift-image-registry.svc:5000/jp-fep-account/jp-fep-account-login:1.1.7    
+  - name: helm-chart-git-url
+    value: http://gitlab.repo.ui-bk.com:7443/Red_Hat/jp-fep-build-deploy.git
+  - name: helm-chart-git-revision
+    value: "main"
+  - name: file-path
+    value: "/workspace/output/jp-fep-build-deploy/deploy/jp-fep-account-login/values.yaml"
+  - name: image-tag
+    value: "1.1.7"
+
+--- 
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: trigger-template-jp-fep-account-login
+spec:
+  params:
+  - name: git-repo-url
+    description: The git repository url
+  - name: git-revision
+    description: The git revision
+  - name: git-repo-name
+    description: The name of the deployment to be created / patched
+  - name: IMAGE
+    description: IMAGE   
+  - name: helm-chart-git-url
+    description: url of the git repo for the code of deployment
+  - name: helm-chart-git-revision
+    description: revision to be used from repo of the code for deployment
+    default: "main"   
+  - name: file-path
+    description: path of values.yaml  
+  - name: image-tag
+    description: image tag to be build from the code
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: pipeline-run-$(tt.params.git-repo-name)-
+    spec:
+      serviceAccountName: pipeline
+      pipelineRef:
+        name: pipeline-jp-fep-account-login
+      params:
+      - name: deployment-name
+        value: $(tt.params.git-repo-name)
+      - name: git-url
+        value: $(tt.params.git-repo-url)     
+      - name: git-revision
+        value: $(tt.params.git-revision)
+      - name: IMAGE
+        value: $(tt.params.IMAGE)
+      - name: helm-chart-git-url
+        value: $(tt.params.helm-chart-git-url)
+      - name: helm-chart-git-revision
+        value: $(tt.params.helm-chart-git-revision)      
+      - name: image-tag
+        value: $(tt.params.image-tag)    
+      - name: file-path
+        value: $(tt.params.file-path)    
+      workspaces:
+        - name: source
+          persistentVolumeClaim:
+            claimName: source
+        - name: maven-settings
+          configMap:
+            name: maven-settings
+        - name: helm-chart
+          persistentVolumeClaim:
+            claimName: helm-chart              
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-webhook-secret
+type: Opaque
+stringData:
+  secretToken: "1234567"
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: eventlistener-jp-fep-account-login
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: gitlab-listener
+      interceptors:
+        - gitlab:
+            secretRef:
+              secretName: gitlab-webhook-secret
+              secretKey: secretToken
+            eventTypes:
+              - Push Hook
+      bindings:
+        - name: trigger-binding-jp-fep-account-login
+          ref: trigger-binding-jp-fep-account-login
+      template:
+        name: trigger-template-jp-fep-account-login  
+
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: el-eventlistener-jp-fep-account-login
+  annotations:
+    openshift.io/host.generated: 'true'
+  namespace: jp-fep-account
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: eventlistener-jp-fep-account-login
+spec:
+  host: >-
+    el-eventlistener-jp-fep-account-login-jp-fep-account.apps.uibfepdev.ui-bk.com
+  to:
+    kind: Service
+    name: el-eventlistener-jp-fep-account-login
+    weight: 100
+  port:
+    targetPort: http-listener
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None    
