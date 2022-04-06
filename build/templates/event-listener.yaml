@@ -9,7 +9,7 @@ spec:
       interceptors:
         - github:
             secretRef:
-              secretName: github-webook-secret
+              secretName: github-webhook-secret
               secretKey: secretToken
             eventTypes:
               - push
