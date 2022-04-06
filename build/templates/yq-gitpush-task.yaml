@@ -58,7 +58,7 @@ spec:
         echo $(params.helm-chart-git-url)
         echo $(params.helm-chart-git-revision) 
 
-        cd helm-demo
+        cd ocp-demo
         #git init
         #git remote add origin "$(params.helm-chart-git-url)"
 
