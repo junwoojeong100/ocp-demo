@@ -19,7 +19,6 @@ spec:
   steps:
     - name: git-clone
       image: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2
-      #image: alpine/git:latest
       workingDir: $(workspaces.output.path)
       script: |
 
@@ -27,6 +26,9 @@ spec:
 
         git config --global user.email "joon9293@gmail.com"
         git config --global user.name "joon9293"
+
+        pwd 
+        ls -al 
 
         git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
 
