@@ -16,7 +16,7 @@ spec:
     value: {{ .Values.helmChartGitUrl }}
   - name: helm-chart-git-revision
     value: {{ .Values.helmChartGitRevision }} 
-  - name: file-path
-    value: {{ .Values.imageTag }}
   - name: image-tag
+    value: {{ .Values.imageTag }}
+  - name: file-path
     value: {{ .Values.filePath }}      
