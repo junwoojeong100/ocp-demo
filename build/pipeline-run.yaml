@@ -1,11 +1,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: pipeline-run-{{ .Values.name }}
+  name: pipeline-run-spring-demo
 spec:
   serviceAccountName: pipeline
   pipelineRef:
-    name: pipeline-{{ .Values.name }}
+    name: pipeline-spring-demo
   workspaces:
     - name: source
       persistentVolumeClaim:
@@ -18,18 +18,18 @@ spec:
         claimName: helm-chart                    
   params:
     - name: deployment-name
-      value: {{ .Values.name }}
+      value: spring-demo
     - name: git-url
-      value: {{ .Values.gitUrl }}
+      value: https://github.com/joon9293/spring-demo.git 
     - name: git-revision
-      value: {{ .Values.gitRevision }}
+      value: master
     - name: IMAGE
-      value: {{ .Values.image }}
+      value: quay.io/jjeong/spring-demo
     - name: helm-chart-git-url
-      value: {{ .Values.helmChartGitUrl }}
+      value: https://github.com/joon9293/ocp-demo.git 
     - name: helm-chart-git-revision
-      value: {{ .Values.helmChartGitRevision }}      
+      value: master      
     - name: image-tag
-      value: {{ .Values.imageTag }}    
+      value: "latest"    
     - name: file-path
-      value: {{ .Values.filePath }}              
+      value: "/workspace/output/ocp-demo/deploy/values.yaml"               

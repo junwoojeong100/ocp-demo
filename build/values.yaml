@@ -6,10 +6,10 @@ gitRevision: master
 
 image: quay.io/jjeong/spring-demo
 
-helmChartGitUrl: https://github.com/joon9293/helm-demo.git 
+helmChartGitUrl: https://github.com/joon9293/ocp-demo.git 
 
 helmChartGitRevision: master
 
 imageTag: "latest" 
 
-filePath: "/workspace/output/helm-demo/values.yaml"
+filePath: "/workspace/output/ocp-demo/deploy/values.yaml"
