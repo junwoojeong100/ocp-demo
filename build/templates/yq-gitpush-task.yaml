@@ -35,8 +35,8 @@ spec:
         pwd 
         ls -al 
 
-        git remote -v
-        git config --list   
+        #git remote -v
+        #git config --list   
 
     - name: replace-image-tag
       #image: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2
