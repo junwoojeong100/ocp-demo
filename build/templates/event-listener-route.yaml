@@ -1,14 +1,14 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: eventlistener-{{ .Values.name }}
-  annotations:
-    openshift.io/host.generated: 'true'
+  name: el-eventlistener-{{ .Values.name }}
+  #annotations:
+  #  openshift.io/host.generated: 'true'
   #namespace: jp-fep-account
-  labels:
-    app.kubernetes.io/managed-by: EventListener
-    app.kubernetes.io/part-of: Triggers
-    eventlistener: eventlistener-{{ .Values.name }}
+  #labels:
+  #  app.kubernetes.io/managed-by: EventListener
+  #  app.kubernetes.io/part-of: Triggers
+  #  eventlistener: eventlistener-{{ .Values.name }}
 spec:
   #host: >-
   #  el-eventlistener-jp-fep-account-login-jp-fep-account.apps.uibfepdev.ui-bk.com
@@ -21,4 +21,4 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: None
-  wildcardPolicy: None    
+  wildcardPolicy: None
