@@ -112,7 +112,7 @@ datadog:
     # datadog.kubeStateMetricsCore.useClusterCheckRunners -- For large clusters where the Kubernetes State Metrics Check Core needs to be distributed on dedicated workers.
     ## Configuring this field will create a separate deployment which will run Cluster Checks, including Kubernetes State Metrics Core.
     ## ref: https://docs.datadoghq.com/agent/cluster_agent/clusterchecksrunner?tab=helm
-    useClusterCheckRunners: false
+    useClusterCheckRunners: true
 
     # datadog.kubeStateMetricsCore.labelsAsTags -- Extra labels to collect from resources and to turn into datadog tag.
     ## It has the following structure:
@@ -137,7 +137,7 @@ datadog:
   ## Autodiscovery via Kube Service annotations is automatically enabled
   clusterChecks:
     # datadog.clusterChecks.enabled -- Enable the Cluster Checks feature on both the cluster-agents and the daemonset
-    enabled: true
+    enabled: false
     # datadog.clusterChecks.shareProcessNamespace -- Set the process namespace sharing on the cluster checks agent
     shareProcessNamespace: false
 
@@ -323,11 +323,7 @@ datadog:
   ## Each key becomes a file in /conf.d
   ## ref: https://github.com/DataDog/datadog-agent/tree/main/Dockerfiles/agent#optional-volumes
   ## ref: https://docs.datadoghq.com/agent/autodiscovery/
-  confd: 
-    crio.yaml: |-
-    init_config:
-    instances:
-    - prometheus_url: http://localhost:9537/metrics 
+  #confd: 
   #   redisdb.yaml: |-
   #     init_config:
   #     instances:
@@ -1025,13 +1021,7 @@ agents:
       securityContext: {}
 
       # agents.containers.agent.ports -- Allows to specify extra ports (hostPorts for instance) for this container
-      ports:
-        - containerPort: 8125
-          name: dogstatsdport
-          protocol: UDP
-        - containerPort: 8126
-          name: traceport
-          protocol: TCP
+      ports: []
 
     processAgent:
       # agents.containers.processAgent.env -- Additional environment variables for the process-agent container
@@ -1211,7 +1201,10 @@ agents:
   #   key: "value"
 
   # agents.tolerations -- Allow the DaemonSet to schedule on tainted nodes (requires Kubernetes >= 1.6)
-  tolerations: []
+  tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
 
   # agents.nodeSelector -- Allow the DaemonSet to schedule on selected nodes
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
