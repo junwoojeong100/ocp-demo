@@ -112,7 +112,7 @@ datadog:
     # datadog.kubeStateMetricsCore.useClusterCheckRunners -- For large clusters where the Kubernetes State Metrics Check Core needs to be distributed on dedicated workers.
     ## Configuring this field will create a separate deployment which will run Cluster Checks, including Kubernetes State Metrics Core.
     ## ref: https://docs.datadoghq.com/agent/cluster_agent/clusterchecksrunner?tab=helm
-    useClusterCheckRunners: true
+    useClusterCheckRunners: false
 
     # datadog.kubeStateMetricsCore.labelsAsTags -- Extra labels to collect from resources and to turn into datadog tag.
     ## It has the following structure:
@@ -137,9 +137,9 @@ datadog:
   ## Autodiscovery via Kube Service annotations is automatically enabled
   clusterChecks:
     # datadog.clusterChecks.enabled -- Enable the Cluster Checks feature on both the cluster-agents and the daemonset
-    enabled: true
+    enabled: false
     # datadog.clusterChecks.shareProcessNamespace -- Set the process namespace sharing on the cluster checks agent
-    shareProcessNamespace: true
+    shareProcessNamespace: false
 
   # datadog.nodeLabelsAsTags -- Provide a mapping of Kubernetes Node Labels to Datadog Tags
   nodeLabelsAsTags: {}
@@ -678,7 +678,13 @@ clusterAgent:
   # clusterAgent.env -- Set environment variables specific to Cluster Agent
   ## The Cluster-Agent supports many additional environment variables
   ## ref: https://docs.datadoghq.com/agent/cluster_agent/commands/#cluster-agent-options
-  env: []
+  env:
+    - name: DD_CLC_RUNNER_ENABLED
+      value: "true"
+    - name: DD_CLC_RUNNER_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP  
 
   # clusterAgent.envFrom --  Set environment variables specific to Cluster Agent from configMaps and/or secrets
   ## The Cluster-Agent supports many additional environment variables
@@ -691,7 +697,7 @@ clusterAgent:
 
   admissionController:
     # clusterAgent.admissionController.enabled -- Enable the admissionController to be able to inject APM/Dogstatsd config and standard tags (env, service, version) automatically into your pods
-    enabled: true
+    enabled: false
 
     # clusterAgent.admissionController.mutateUnlabelled -- Enable injecting config without having the pod label 'admission.datadoghq.com/enabled="true"'
     mutateUnlabelled: false
@@ -850,7 +856,7 @@ existingClusterAgent:
   serviceName:  # <EXISTING_DCA_SERVICE_NAME>
 
   # existingClusterAgent.clusterchecksEnabled -- set this to false if you don’t want the agents to run the cluster checks of the joined external cluster agent
-  clusterchecksEnabled: true
+  clusterchecksEnabled: false
 
 agents:
   # agents.enabled -- You should keep Datadog DaemonSet enabled!
@@ -1212,9 +1218,6 @@ agents:
   - key: node-role.kubernetes.io/master
     operator: Exists
     effect: NoSchedule
-  - key: node-role.kubernetes.io/infra
-    operator: Exists
-    effect: NoSchedule
 
   # agents.nodeSelector -- Allow the DaemonSet to schedule on selected nodes
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -1293,7 +1296,7 @@ agents:
 clusterChecksRunner:
   # clusterChecksRunner.enabled -- If true, deploys agent dedicated for running the Cluster Checks instead of running in the Daemonset's agents.
   ## ref: https://docs.datadoghq.com/agent/autodiscovery/clusterchecks/
-  enabled: true
+  enabled: false
 
   ## Define the Datadog image to work with.
   image:
@@ -1490,7 +1493,7 @@ datadog-crds:
 
 kube-state-metrics:
   securityContext:
-    enabled: false
+    enabled: true
 
   rbac:
     # kube-state-metrics.rbac.create -- If true, create & use RBAC resources
