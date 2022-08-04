@@ -24,7 +24,7 @@ spec:
 
         rm -rf *
 
-        git config --global user.email "junw9293@gmail.com"
+        git config --global user.email "joonoo.jeong@gmail.com"
         git config --global user.name "junw9293"
 
         git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
