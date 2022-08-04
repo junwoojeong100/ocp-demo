@@ -14,7 +14,7 @@ spec:
   - name: IMAGE
     value: quay.io/jjeong/spring-demo      
   - name: helm-chart-git-url
-    value: https://github.com/joon9293/helm-demo.git
+    value: https://github.com/junw9293/helm-demo.git
   - name: helm-chart-git-revision
     value: "master"
   - name: file-path

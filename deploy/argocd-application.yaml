@@ -9,7 +9,7 @@ spec:
     server: 'https://kubernetes.default.svc'
   source:
     path: deploy
-    repoURL: 'https://github.com/joon9293/ocp-demo.git'
+    repoURL: 'https://github.com/junw9293/ocp-demo.git'
     targetRevision: HEAD
     helm:
       valueFiles:

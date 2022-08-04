@@ -1,12 +1,12 @@
 name: spring-demo
 
-gitUrl: https://github.com/joon9293/spring-demo.git 
+gitUrl: https://github.com/junw9293/spring-demo.git 
 
 gitRevision: master
 
 image: quay.io/jjeong/spring-demo
 
-helmChartGitUrl: https://github.com/joon9293/ocp-demo.git 
+helmChartGitUrl: https://github.com/junw9293/ocp-demo.git 
 
 helmChartGitRevision: master
 

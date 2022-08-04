@@ -19,6 +19,6 @@ spec:
     - name: deployment-name
       value: tekton-demo
     - name: git-url
-      value: https://github.com/joon9293/spring-demo.git
+      value: https://github.com/junw9293/spring-demo.git
     - name: IMAGE
-      value: joon9293/spring-demo
+      value: junw9293/spring-demo
