@@ -1,19 +1,19 @@
 name: myapp
 
-# source git repo
 gitUrl: https://gitlab.consulting.redhat.com/grameenphone/cicd-test.git
+
 gitRevision: main
 
-# container image & image tag
 image: image-registry.openshift-image-registry.svc:5000/myapp/myapp
+
+helmChartGitUrl: https://gitlab.consulting.redhat.com/grameenphone/cicd.git 
+
+helmChartGitRevision: main
+
 imageTag: "latest" 
 
-# config git repo
-helmChartGitUrl: https://gitlab.consulting.redhat.com/grameenphone/cicd.git 
-helmChartGitRevision: main
-# config git repo's values.yaml
 filePath: "/workspace/output/cicd/deploy/myapp/values.yaml"
 
-# sonarqube
 SONAR_HOST_URL: 'https://sonarqube-sonarqube-sonarqube.apps.gp-rosa.xkpt.p1.openshiftapps.com/'           
+
 SONAR_PROJECT_KEY: io.example:spring-demo     

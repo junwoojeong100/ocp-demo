@@ -4,19 +4,30 @@ metadata:
   name: trigger-binding-{{ .Values.name }}
 spec:
   params:
-  - name: git-repo-url
-    value: $(body.repository.url)
-  - name: git-repo-name
-    value: $(body.repository.name)
-  - name: git-revision
-    value: $(body.head_commit.id)
-  - name: IMAGE
-    value: {{ .Values.image }}      
-  - name: helm-chart-git-url
-    value: {{ .Values.helmChartGitUrl }}
-  - name: helm-chart-git-revision
-    value: {{ .Values.helmChartGitRevision }} 
-  - name: image-tag
-    value: {{ .Values.imageTag }}
-  - name: file-path
-    value: {{ .Values.filePath }}      
+    - name: git-repo-url
+      #value: https://gitlab.consulting.redhat.com/grameenphone/cicd-test.git
+     #value: $(body.repository.url)
+      value: $(body.repository.git_http_url)
+    - name: git-repo-name
+      value: $(body.repository.name)
+    - name: git-revision
+      value: $(body.commits[0].id)
+    - name: IMAGE
+      #value: image-registry.openshift-image-registry.svc:5000/cicd-gitlab/spring-demo:$(body.commits[0].id)
+      value: {{ .Values.image }}:$(body.commits[0].id)
+    - name: helm-chart-git-url
+      #value: https://gitlab.consulting.redhat.com/grameenphone/cicd.git
+      value: {{ .Values.helmChartGitUrl }}
+    - name: helm-chart-git-revision
+      #value: "main"
+      value: {{ .Values.helmChartGitRevision }} 
+    - name: file-path
+      #value: "/workspace/output/cicd/deploy/spring-demo/values.yaml"
+      value: {{ .Values.filePath }}  
+    - name: image-tag
+      value: $(body.commits[0].id)
+      #value: {{ .Values.imageTag }}
+    - name: SONAR_HOST_URL
+      value: {{ .Values.SONAR_HOST_URL }}           
+    - name: SONAR_PROJECT_KEY
+      value: {{ .Values.SONAR_PROJECT_KEY }}      

@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: sonar-properties
+data:
+  sonar-project.properties: >-
+    sonar.host.url=https://sonarqube-sonarqube-sonarqube.apps.gp-rosa.xkpt.p1.openshiftapps.com/
+
+    sonar.projectKey=io.example:spring-demo
+
+    sonar.login=squ_17ceb9e57cc743c1add306777849d3069f95e31a
+
+    sonar.java.binaries=target/classes

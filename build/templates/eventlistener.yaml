@@ -1,0 +1,28 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: eventlistener-{{ .Values.name }}
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: gitlab-listener
+      interceptors:
+        #- gitlab:
+        #    secretRef:
+        #      secretName: gitlab-secret
+        #      secretKey: secretToken
+        #    eventTypes:
+        #      - Push Hook
+      - ref:
+          name: "gitlab"
+        params:
+        - name: "secretRef"
+          value:
+            secretName: gitlab-secret
+            secretKey: secretToken
+        - name: "eventTypes"
+          value: ["Push Hook"]
+      bindings:
+        - ref: trigger-binding-{{ .Values.name }}
+      template:
+        ref: trigger-template-{{ .Values.name }}  

@@ -2,9 +2,9 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: {{ include "helm-demo.fullname" . }}
+  name: {{ include "app.fullname" . }}
   labels: 
-    {{- include "helm-demo.labels" . | nindent 4 }}
+    {{- include "app.labels" . | nindent 4 }}
   annotations:
     'haproxy.router.openshift.io/timeout': '60s'
 spec:
@@ -17,7 +17,7 @@ spec:
   #  termination: edge
   to:
     kind: Service
-    name: {{ include "helm-demo.fullname" . }}
+    name: {{ include "app.fullname" . }}
     weight: 100
   tls:
     termination: edge

@@ -6,7 +6,8 @@ spec:
   workspaces:
   - name: source
   - name: maven-settings
-  - name: helm-chart
+  - name: sonar-settings
+  - name: helm-chart  
   params:
   - name: deployment-name
     type: string
@@ -33,7 +34,13 @@ spec:
     description: path of values.yaml  
   - name: image-tag
     type: string
-    description: image tag to be build from the code             
+    description: image tag to be build from the code   
+  - name: SONAR_HOST_URL
+    type: string
+    description: SONAR_HOST_URL       
+  - name: SONAR_PROJECT_KEY
+    type: string
+    description: SONAR_PROJECT_KEY                
   tasks:
   - name: git-clone
     taskRef:
@@ -64,7 +71,23 @@ spec:
     - name: maven-settings
       workspace: maven-settings
     - name: source
-      workspace: source    
+      workspace: source   
+  - name: sonarqube-scanner
+    taskRef:
+      name: sonarqube-scanner
+      kind: ClusterTask
+    runAfter:
+      - maven-build
+    params:
+      - name: SONAR_HOST_URL
+        value: $(params.SONAR_HOST_URL)
+      - name: SONAR_PROJECT_KEY
+        value: $(params.SONAR_PROJECT_KEY)
+    workspaces:
+      - name: source
+        workspace: source
+      - name: sonar-settings
+        workspace: sonar-settings     
   - name: build-image
     taskRef:
       name: buildah
@@ -72,11 +95,13 @@ spec:
     params:
     - name: IMAGE
       value: $(params.IMAGE)
+    #- name: TLSVERIFY
+    #  value: "false"        
     workspaces:
     - name: source
       workspace: source
     runAfter:
-    - maven-build 
+    - sonarqube-scanner 
   - name: yq-and-git-push
     taskRef:
       name: yq-and-git-push

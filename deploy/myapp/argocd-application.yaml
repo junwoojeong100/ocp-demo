@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: spring-demo-build
+  name: myapp
 spec:
   destination:
     name: ''
-    namespace: default
+    namespace: myapp
     server: 'https://kubernetes.default.svc'
   source:
-    path: build
-    repoURL: 'https://github.com/junw9293/ocp-demo.git'
+    path: deploy
+    repoURL: 'https://gitlab.consulting.redhat.com/grameenphone/cicd.git'
     targetRevision: HEAD
     helm:
       valueFiles:
-        - values.yaml
+        - myapp/values.yaml
   project: default

@@ -6,7 +6,6 @@ data:
   settings.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <settings>
-      <!--
       <servers>
         <server>
           <id>nexus</id>
@@ -18,9 +17,8 @@ data:
         <mirror>
           <id>nexus</id>
           <name>nexus</name>
-          <url>http://nexus:8081/repository/maven-public/</url>
+          <url>https://nexusrepo-nexusrepo.apps.gp-rosa.xkpt.p1.openshiftapps.com/repository/maven-public/</url>
           <mirrorOf>*</mirrorOf>
         </mirror>
       </mirrors>
-      -->
     </settings>

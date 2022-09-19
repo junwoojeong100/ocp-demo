@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipeline-run-myapp
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: pipeline-myapp
+  podTemplate:
+    securityContext:
+      fsGroup: 65532  
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: source
+    - name: maven-settings
+      configMap:
+        name: maven-settings                
+    - name: sonar-settings
+      configMap:
+        name: sonar-properties 
+    - name: helm-chart
+      persistentVolumeClaim:
+        claimName: helm-chart            
+  params:
+    - name: deployment-name
+      value: myapp
+    - name: git-url
+      value: https://gitlab.consulting.redhat.com/grameenphone/cicd-test.git 
+    - name: git-revision
+      value: main
+    - name: IMAGE
+      #value: quay.io/jjeong/spring-demo
+      #value: default-route-openshift-image-registry.apps.gp-rosa.xkpt.p1.openshiftapps.com/cicd-demo/spring-demo:latest
+      value: image-registry.openshift-image-registry.svc:5000/myapp/myapp
+    - name: helm-chart-git-url
+      value: https://gitlab.consulting.redhat.com/grameenphone/cicd.git 
+    - name: helm-chart-git-revision
+      value: main      
+    - name: image-tag
+      value: "latest"    
+    - name: file-path
+      value: "/workspace/output/cicd/deploy/myapp/values.yaml" 
+    - name: SONAR_HOST_URL
+      value: 'https://sonarqube-sonarqube-sonarqube.apps.gp-rosa.xkpt.p1.openshiftapps.com/'             
+    - name: SONAR_PROJECT_KEY
+      value: io.example:spring-demo     

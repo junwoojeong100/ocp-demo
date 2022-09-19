@@ -1,0 +1,79 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: yq-and-git-push
+  namespace: {{ .Values.name }}
+spec:
+  params:
+    - description: Path of values.yaml
+      name: file-path
+      type: string
+    - description: New image tag
+      name: image-tag
+      type: string
+    - description: url of the git repo for the code of deployment
+      name: helm-chart-git-url
+      type: string
+    - description: revision to be used from repo of the code for deployment
+      name: helm-chart-git-revision
+      type: string
+  steps:
+    - image: 'registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2'
+      name: git-clone
+      resources: {}
+      script: >
+
+        rm -rf *
+
+        git config --global user.email "jjeong@redhat.com" 
+
+        git config --global user.name "jjeong"
+
+        git clone "$(params.helm-chart-git-url)" --branch "$(params.helm-chart-git-revision)" --single-branch
+
+        #git remote -v
+
+        #git config --list   
+      workingDir: $(workspaces.output.path)
+    - image: mikefarah/yq
+      name: replace-image-tag
+      resources: {}
+      script: |
+        #!/bin/sh    
+        echo $(params.file-path)
+        echo $(params.image-tag)
+
+        yq -i '.image.tag="$(params.image-tag)"' '$(params.file-path)'
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.output.path)
+    - image: 'registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8:v1.6.2'
+      name: git-push
+      resources: {}
+      script: |
+        #!/bin/sh 
+        echo $(params.helm-chart-git-url)
+        echo $(params.helm-chart-git-revision) 
+
+        cd cicd
+
+        git config --global user.email "jjeong@redhat.com" 
+
+        git config --global user.name "jjeong"
+
+        #git init
+        #git remote add origin "$(params.helm-chart-git-url)"
+
+        git add .
+
+        git commit -m "update values.yaml"
+
+        #pwd 
+        #ls -al 
+
+        git show-ref
+        git push -u origin $(params.helm-chart-git-revision)  
+      workingDir: $(workspaces.output.path)
+  workspaces:
+    - description: The git repo will be cloned onto the volume backing this workspace
+      name: output
